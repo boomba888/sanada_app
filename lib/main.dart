@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
@@ -47,7 +46,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() {
     if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-      // الانتقال إلى شاشة البلاغات بعد تسجيل الدخول بنجاح
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const ReportScreen()),
@@ -138,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// 2. شاشة رفع البلاغات وإدارة الملفات
+// 2. شاشة رفع البلاغات
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
 
@@ -150,17 +148,13 @@ class _ReportScreenState extends State<ReportScreen> {
   String? _fileName;
   final _reportController = TextEditingController();
 
-  void _pickFile() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles();
-      if (result != null) {
-        setState(() {
-          _fileName = result.files.single.name;
-        });
-      }
-    } catch (e) {
-      debugPrint('File pick error: $e');
-    }
+  void _simulateAttachFile() {
+    setState(() {
+      _fileName = 'document_report_2026.pdf';
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('تم إرفاق المستند بنجاح')),
+    );
   }
 
   void _submitReport() {
@@ -212,7 +206,7 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
-              onPressed: _pickFile,
+              onPressed: _simulateAttachFile,
               icon: const Icon(Icons.attach_file),
               label: Text(_fileName == null ? 'إرفاق ملف أو مستند' : 'تم اختيار: $_fileName'),
               style: ElevatedButton.styleFrom(
