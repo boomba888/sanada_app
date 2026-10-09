@@ -1,0 +1,49 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Create Project and Install Dependencies
+        run: |
+          flutter create temp_app --org com.sanad.app --project-name sanad
+          cd temp_app
+          flutter pub add file_picker firebase_core firebase_auth
+          
+      - name: Inject Custom Code and Configs
+        run: |
+          cd temp_app
+          rm -f lib/main.dart
+          cp ../lib/main.dart lib/main.dart
+          if [ -f "../android/app/google-services.json" ]; then
+            mkdir -p android/app
+            cp ../android/app/google-services.json android/app/google-services.json
+          fi
+
+      - name: Build APK
+        run: |
+          cd temp_app
+          flutter build apk --split-per-abi
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanad-apk
+          path: temp_app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
